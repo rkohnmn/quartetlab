@@ -1,0 +1,33 @@
+name: CI — Tests, Subpath Audit & Prose Linter
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Execute JavaScript test suite
+        run: npm test
+
+      - name: Verify subpath compatibility and asset integrity
+        run: npm run verify
+
+      - name: Audit documentation prose quality
+        run: npm run lint:docs

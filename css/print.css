@@ -1,0 +1,126 @@
+/* ==========================================================================
+   QuartetLab Printable Classroom FRQ Worksheet & Lab Handout Styles
+   ========================================================================== */
+
+.worksheet-preview-sheet {
+  background: #FFFFFF;
+  color: #141619;
+  border: 1px solid #D8D4C8;
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  font-family: var(--font-body);
+}
+
+.worksheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #141619;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.worksheet-title {
+  font-family: var(--font-headline);
+  font-size: 1.45rem;
+  color: #141619;
+}
+
+.worksheet-meta {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #525866;
+  text-align: right;
+}
+
+.worksheet-figures-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 14px 0;
+}
+
+.worksheet-figure-box {
+  border: 1px solid #D8D4C8;
+  border-radius: 4px;
+  padding: 8px;
+  text-align: center;
+  background: #FFFFFF;
+}
+
+.worksheet-figure-box img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.worksheet-questions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.worksheet-q-item {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.worksheet-answer-space {
+  margin-top: 6px;
+  height: 46px;
+  border-bottom: 1px dashed #9E998B;
+}
+
+.worksheet-rubric-box {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #F6F4EE;
+  border-left: 3px solid #0F6E56;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #141619;
+}
+
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  .top-header,
+  .moment-strip,
+  .workbench-grid,
+  .app-footer,
+  .toast-container,
+  .modal-header,
+  .modal-footer,
+  .no-print {
+    display: none !important;
+  }
+
+  .modal-backdrop {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .modal-card {
+    max-width: 100% !important;
+    max-height: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .modal-body {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .worksheet-preview-sheet {
+    border: none !important;
+    padding: 0 !important;
+  }
+}

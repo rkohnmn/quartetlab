@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="QuartetLab Open Graph Preview">
+  <rect width="1200" height="630" fill="#F6F4EE"/>
+  <g stroke="#E2DEC9" stroke-width="1">
+    <line x1="0" y1="90" x2="1200" y2="90"/>
+    <line x1="0" y1="180" x2="1200" y2="180"/>
+    <line x1="0" y1="270" x2="1200" y2="270"/>
+    <line x1="0" y1="360" x2="1200" y2="360"/>
+    <line x1="0" y1="450" x2="1200" y2="450"/>
+    <line x1="0" y1="540" x2="1200" y2="540"/>
+    <line x1="150" y1="0" x2="150" y2="630"/>
+    <line x1="300" y1="0" x2="300" y2="630"/>
+    <line x1="450" y1="0" x2="450" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="750" y1="0" x2="750" y2="630"/>
+    <line x1="900" y1="0" x2="900" y2="630"/>
+    <line x1="1050" y1="0" x2="1050" y2="630"/>
+  </g>
+  <rect x="60" y="60" width="1080" height="510" rx="16" fill="#FFFFFF" stroke="#141619" stroke-width="3"/>
+  <text x="110" y="150" font-family="Georgia, serif" font-size="54" font-weight="bold" fill="#141619">QuartetLab</text>
+  <text x="110" y="205" font-family="sans-serif" font-size="24" fill="#525866">Interactive Bivariate Dataset Synthesizer, Exact-Moment Solver &amp; Diagnostic Studio</text>
+  <rect x="110" y="245" width="520" height="270" rx="8" fill="#F6F4EE" stroke="#D8D4C8" stroke-width="2"/>
+  <line x1="140" y1="470" x2="590" y2="290" stroke="#0F6E56" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="180" cy="450" r="8" fill="#141619"/>
+  <circle cx="250" cy="415" r="8" fill="#141619"/>
+  <circle cx="330" cy="395" r="8" fill="#141619"/>
+  <circle cx="410" cy="360" r="8" fill="#141619"/>
+  <circle cx="490" cy="335" r="8" fill="#141619"/>
+  <circle cx="550" cy="275" r="10" fill="#D9381E"/>
+  <circle cx="550" cy="275" r="20" fill="none" stroke="#D9381E" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <g font-family="monospace" font-size="20" fill="#141619">
+    <rect x="670" y="245" width="420" height="270" rx="8" fill="#F6F4EE" stroke="#D8D4C8" stroke-width="2"/>
+    <text x="700" y="295" font-weight="bold" fill="#0F6E56">EXACT SAMPLE MOMENTS LOCKED</text>
+    <text x="700" y="340">mean(X) = 9.0000   sd(X) = 3.3166</text>
+    <text x="700" y="378">mean(Y) = 7.5009   sd(Y) = 2.0316</text>
+    <text x="700" y="416">Pearson r = 0.8164   R² = 0.6665</text>
+    <text x="700" y="454">OLS: y = 3.0001 + 0.5001x</text>
+    <text x="700" y="492" fill="#D9381E">Exports: CSV · R · Python · TI-84 · FRQ</text>
+  </g>
+</svg>

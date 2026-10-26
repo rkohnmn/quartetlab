@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuartetLab — Interactive Bivariate Dataset Synthesizer, Exact-Moment Solver &amp; Diagnostic Studio</title>
+  <meta name="description" content="Draw, sculpt, and project bivariate datasets onto exact sample means, standard deviations, and Pearson correlations (r). Inspect real-time OLS residuals, Cook's distance, Minitab/AP regression tables, TI-84 lists, R/Python scripts, and printable FRQ worksheets—100% locally in your browser.">
+  <meta name="keywords" content="Anscombe's Quartet, Datasaurus, regression diagnostics, synthetic dataset generator, AP Statistics FRQ generator, Cook's distance, leverage, residual plot, TI-84 list generator, local-first statistics tool">
+  <meta name="author" content="QuartetLab Contributors">
+  <meta name="theme-color" content="#0F6E56">
+
+  <!-- Open Graph / Social Discovery -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="QuartetLab — Interactive Statistical Dataset Synthesizer &amp; Diagnostic Workbench">
+  <meta property="og:description" content="Sculpt bivariate datasets with exact sample moments (mean, SD, Pearson r), live Cook's distance &amp; residual plots, Minitab/R output tables, TI-84 lists, and printable classroom FRQ handouts.">
+  <meta property="og:image" content="./assets/og-preview.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="QuartetLab — Exact-Moment Dataset Synthesizer &amp; Regression Studio">
+  <meta name="twitter:description" content="Browser-native statistical dataset synthesizer with Gram-Schmidt exact moment projection, live residual diagnostics, and one-click R/Python/TI-84/FRQ exports.">
+
+  <!-- Relative Favicon & Stylesheets (GitHub Pages Subpath Safe) -->
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/print.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "QuartetLab",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Local-first bivariate dataset synthesizer, Gram-Schmidt exact-moment solver, regression diagnostic workbench, and printable FRQ assessment studio."
+  }
+  </script>
+</head>
+<body>
+  <a href="#main-workbench" class="skip-link">Skip to interactive workbench</a>
+  <div id="sr-live-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="app-shell">
+    <!-- Top Instrument Ribbon -->
+    <header class="top-header" role="banner">
+      <div class="brand-cluster">
+        <img src="./assets/favicon.svg" alt="QuartetLab monograph icon" class="brand-mark" width="36" height="36">
+        <div>
+          <div class="brand-title-row">
+            <h1 class="brand-title">QuartetLab</h1>
+            <span class="brand-tag">v1.0 · LOCAL-FIRST</span>
+          </div>
+          <p class="brand-subtitle">Bivariate Dataset Synthesizer, Exact-Moment Solver &amp; Regression Diagnostic Workbench</p>
+        </div>
+      </div>
+
+      <div class="header-actions" role="toolbar" aria-label="Dataset presets and global actions">
+        <label for="preset-select" class="sr-only">Select Preset Dataset</label>
+        <select id="preset-select" class="select-field" style="width: auto; max-width: 100%;" aria-label="Preset Dataset">
+          <optgroup label="Classic Statistical Quartets">
+            <option value="anscombe_1">Anscombe I — Standard Linear (r = 0.816)</option>
+            <option value="anscombe_2">Anscombe II — Quadratic Arch (r = 0.816)</option>
+            <option value="anscombe_3">Anscombe III — Influential Outlier (r = 0.816)</option>
+            <option value="anscombe_4">Anscombe IV — Extreme Leverage h=1 (r = 0.816)</option>
+          </optgroup>
+          <optgroup label="STEM &amp; Diagnostic Labs">
+            <option value="physics_pendulum">Physics Lab — Pendulum T² vs. Length L</option>
+            <option value="heteroscedastic_fan">Diagnostic Violation — Heteroscedastic Fan</option>
+          </optgroup>
+          <optgroup label="Applied Operations &amp; Sports">
+            <option value="culinary_yield">Culinary Audit — Trim Yield % vs. Portion Cost</option>
+            <option value="sports_oline">Sports Analytics — Pass-Block Win % vs. Pocket Time</option>
+          </optgroup>
+        </select>
+
+        <button type="button" id="undo-btn" class="btn btn-sm" title="Undo (Ctrl+Z)" disabled>Undo</button>
+        <button type="button" id="redo-btn" class="btn btn-sm" title="Redo (Ctrl+Shift+Z)" disabled>Redo</button>
+        <button type="button" id="reset-preset-btn" class="btn btn-sm" title="Reset current preset">Reset</button>
+        <button type="button" id="open-import-btn" class="btn btn-sm">Import CSV</button>
+        <button type="button" id="share-url-btn" class="btn btn-sm">Share Link</button>
+        <button type="button" id="open-worksheet-btn" class="btn btn-primary btn-sm">Printable FRQ Sheet</button>
+        <button type="button" id="open-privacy-btn" class="btn btn-sm" title="Local storage snapshots and privacy inspector">Snapshots &amp; Privacy</button>
+        <button type="button" id="theme-toggle-btn" class="btn btn-sm" aria-label="Toggle dark and light instrument theme">Theme</button>
+      </div>
+    </header>
+
+    <!-- Live Summary Moment Strip -->
+    <section class="moment-strip" aria-label="Live summary statistics">
+      <div class="moment-cell">
+        <span class="moment-label">Sample Size (n)</span>
+        <span id="m-n" class="moment-value">11</span>
+      </div>
+      <div class="moment-cell">
+        <span class="moment-label">Mean X (x̄)</span>
+        <span id="m-mean-x" class="moment-value">9.0000</span>
+      </div>
+      <div class="moment-cell">
+        <span class="moment-label">SD X (sₓ)</span>
+        <span id="m-sd-x" class="moment-value">3.3166</span>
+      </div>
+      <div class="moment-cell">
+        <span class="moment-label">Mean Y (ȳ)</span>
+        <span id="m-mean-y" class="moment-value">7.5009</span>
+      </div>
+      <div class="moment-cell">
+        <span class="moment-label">SD Y (sᵧ)</span>
+        <span id="m-sd-y" class="moment-value">2.0316</span>
+      </div>
+      <div class="moment-cell">
+        <span class="moment-label">Pearson r</span>
+        <span id="m-r" class="moment-value accent-primary">0.8164</span>
+      </div>
+      <div class="moment-cell">
+        <span class="moment-label">Coeff. Det. (R²)</span>
+        <span id="m-r2" class="moment-value">66.65%</span>
+      </div>
+      <div class="moment-cell">
+        <span class="moment-label">Least-Squares Fit</span>
+        <span id="m-ols-eq" class="moment-value accent-primary">ŷ = 3.000 + 0.500x</span>
+      </div>
+    </section>
+
+    <!-- Primary Workbench Grid -->
+    <main id="main-workbench" class="workbench-grid">
+      <!-- Left Column: Interactive Plotting Canvases & Scenario Context -->
+      <div class="workbench-left">
+        <!-- Interactive Scatter Plot Panel -->
+        <section class="panel" aria-labelledby="scatter-panel-title">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 id="scatter-panel-title" class="panel-title">Bivariate Scatter &amp; Ordinary Least-Squares Plane</h2>
+              <span id="cursor-readout" class="panel-badge">x: 9.00, y: 7.50</span>
+            </div>
+
+            <div class="segmented-control" role="group" aria-label="Canvas pointer mode">
+              <button type="button" class="seg-btn active" data-tool-mode="drag" aria-pressed="true">Drag / Inspect</button>
+              <button type="button" class="seg-btn" data-tool-mode="add" aria-pressed="false">+ Brush Point</button>
+              <button type="button" class="seg-btn" data-tool-mode="erase" aria-pressed="false">− Erase Point</button>
+            </div>
+          </div>
+
+          <div class="canvas-toolbar">
+            <div class="control-row" style="gap: 12px; font-size: 0.78rem;">
+              <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="checkbox" id="toggle-ci" checked> 95% CI Ribbon
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="checkbox" id="toggle-resid-lines" checked> Residual Vectors (eᵢ)
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="checkbox" id="toggle-quadratic"> Quadratic Overlay
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:600; color:var(--color-primary);">
+                <input type="checkbox" id="lock-moments-check"> Lock Exact Moments While Dragging
+              </label>
+            </div>
+            <span class="mono" style="font-size: 0.72rem; color: var(--color-text-muted);">Keys: [ / ] cycle obs · Arrows nudge</span>
+          </div>
+
+          <div class="canvas-stage scatter-stage">
+            <canvas id="scatter-canvas" class="plot-canvas" tabindex="0" aria-label="Interactive bivariate scatter plot. Drag points with pointer or use bracket keys to select a point and arrow keys to nudge coordinates."></canvas>
+          </div>
+
+          <div class="canvas-legend">
+            <div class="legend-items">
+              <span class="legend-item"><span class="legend-swatch" style="background: var(--canvas-ols);"></span> OLS Fit &amp; 95% CI</span>
+              <span class="legend-item"><span class="legend-swatch" style="background: var(--canvas-residual);"></span> Residual eᵢ = yᵢ − ŷᵢ</span>
+              <span class="legend-item"><span class="legend-dot" style="background: var(--canvas-fulcrum);"></span> Mean Fulcrum (x̄, ȳ)</span>
+              <span class="legend-item"><span class="legend-halo"></span> Influential (Cook's D &gt; 4/n)</span>
+            </div>
+            <span id="diagnostic-alert-banner" class="mono" style="font-weight: 600;">Diagnostics Ready</span>
+          </div>
+        </section>
+
+        <!-- Synchronized Residual Plot & Normal Q-Q Plot -->
+        <div class="diagnostics-pair-grid">
+          <section class="panel" aria-labelledby="resid-panel-title">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <h2 id="resid-panel-title" class="panel-title">Residuals vs. Fitted (eᵢ vs. ŷᵢ)</h2>
+                <span class="panel-badge">Linearity &amp; Equal Variance Check</span>
+              </div>
+            </div>
+            <div class="canvas-stage diag-stage">
+              <canvas id="residual-canvas" class="plot-canvas" aria-label="Residual plot graphing raw residuals against fitted values"></canvas>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="qq-panel-title">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <h2 id="qq-panel-title" class="panel-title">Normal Q-Q Plot of Residuals</h2>
+                <span class="panel-badge">Normality of Errors Check</span>
+              </div>
+            </div>
+            <div class="canvas-stage diag-stage">
+              <canvas id="qq-canvas" class="plot-canvas" aria-label="Normal quantile-quantile plot of studentized residuals"></canvas>
+            </div>
+          </section>
+        </div>
+
+        <!-- Scenario Framing & Variable Metadata -->
+        <section class="panel" aria-labelledby="context-panel-title">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 id="context-panel-title" class="panel-title">Scenario Framing &amp; Variable Units</h2>
+              <span class="panel-badge">Used in Plots, Code &amp; Printable FRQ Handout</span>
+            </div>
+          </div>
+          <div class="panel-body compact">
+            <div class="control-row" style="margin-bottom: 10px;">
+              <div class="field-group">
+                <label for="x-label-input" class="field-label">Explanatory Variable (X)</label>
+                <input type="text" id="x-label-input" class="input-field" value="Explanatory X1">
+              </div>
+              <div class="field-group" style="max-width: 110px;">
+                <label for="x-unit-input" class="field-label">X Units</label>
+                <input type="text" id="x-unit-input" class="input-field" value="units">
+              </div>
+              <div class="field-group">
+                <label for="y-label-input" class="field-label">Response Variable (Y)</label>
+                <input type="text" id="y-label-input" class="input-field" value="Response Y1">
+              </div>
+              <div class="field-group" style="max-width: 110px;">
+                <label for="y-unit-input" class="field-label">Y Units</label>
+                <input type="text" id="y-unit-input" class="input-field" value="units">
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="context-prompt-input" class="field-label">Problem Context / Investigation Description</label>
+              <textarea id="context-prompt-input" class="input-field" rows="2" style="resize: vertical;"></textarea>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Exact-Moment Solver, Computer Output Table, Observation Grid & Exporters -->
+      <aside class="workbench-right" aria-label="Statistical solver, regression output, and exporters">
+        <!-- Gram-Schmidt Exact Sample Moment Solver -->
+        <section class="panel" aria-labelledby="solver-panel-title">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 id="solver-panel-title" class="panel-title">Exact-Moment Projection Solver</h2>
+              <span class="panel-badge">Gram-Schmidt Orthogonal Rescaling</span>
+            </div>
+          </div>
+          <div class="panel-body compact">
+            <div class="solver-grid">
+              <div class="solver-item">
+                <label for="target-mean-x">Target x̄</label>
+                <input type="number" id="target-mean-x" step="0.1" value="9.0000">
+              </div>
+              <div class="solver-item">
+                <label for="target-sd-x">Target sₓ</label>
+                <input type="number" id="target-sd-x" step="0.1" min="0.01" value="3.3166">
+              </div>
+              <div class="solver-item">
+                <label for="target-mean-y">Target ȳ</label>
+                <input type="number" id="target-mean-y" step="0.1" value="7.5009">
+              </div>
+              <div class="solver-item">
+                <label for="target-sd-y">Target sᵧ</label>
+                <input type="number" id="target-sd-y" step="0.1" min="0.01" value="2.0316">
+              </div>
+              <div class="solver-item">
+                <label for="target-r">Target r</label>
+                <input type="number" id="target-r" step="0.02" min="-0.999" max="0.999" value="0.8164">
+              </div>
+            </div>
+
+            <div class="control-row" style="justify-content: space-between;">
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" id="project-moments-btn" class="btn btn-primary btn-sm">Project Cloud to Target Moments</button>
+                <button type="button" id="match-anscombe-btn" class="btn btn-sm" title="Set moments to classic Anscombe Quartet values">Snap to Anscombe Moments</button>
+              </div>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <label for="pattern-select" class="sr-only">Geometric Pattern</label>
+                <select id="pattern-select" class="select-field" style="width:auto; min-height:28px; padding:3px 8px; font-size:0.75rem;">
+                  <option value="parabola">Shape: Quadratic Arch</option>
+                  <option value="ring">Shape: Elliptical Ring</option>
+                  <option value="clusters">Shape: 3 Clusters</option>
+                  <option value="heteroscedastic">Shape: Megaphone Fan</option>
+                  <option value="outlier_leverage">Shape: High-Leverage Outlier</option>
+                  <option value="linear_noise">Shape: Homoscedastic Linear</option>
+                </select>
+                <button type="button" id="synthesize-pattern-btn" class="btn btn-sm">Synthesize Shape</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Minitab / AP Exam Computer Regression Output Table -->
+        <section class="panel" aria-labelledby="reg-output-title">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 id="reg-output-title" class="panel-title">Computer Regression Output</h2>
+              <span class="panel-badge">Standard Minitab / R Exam Format</span>
+            </div>
+          </div>
+          <div class="regression-table-wrap">
+            <table class="stat-table" aria-label="Ordinary least squares regression coefficients and t-tests">
+              <thead>
+                <tr>
+                  <th scope="col">Predictor</th>
+                  <th scope="col">Coef</th>
+                  <th scope="col">SE Coef</th>
+                  <th scope="col">T</th>
+                  <th scope="col">P</th>
+                </tr>
+              </thead>
+              <tbody id="reg-table-body"></tbody>
+            </table>
+            <div id="reg-summary-footer" class="stat-summary-footer"></div>
+          </div>
+        </section>
+
+        <!-- Observation Coordinates & Point-Level Diagnostics -->
+        <section class="panel" aria-labelledby="obs-table-title">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 id="obs-table-title" class="panel-title">Observations &amp; Influence Diagnostics</h2>
+              <span class="panel-badge">Inline Editable · hᵢ &amp; Cook's Dᵢ</span>
+            </div>
+            <button type="button" id="add-row-btn" class="btn btn-sm">+ Add Obs</button>
+          </div>
+          <div class="panel-body compact">
+            <div class="points-table-scroll">
+              <table class="points-table" aria-label="Observation coordinates and regression diagnostics">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">X</th>
+                    <th scope="col">Y</th>
+                    <th scope="col">ŷᵢ</th>
+                    <th scope="col">eᵢ</th>
+                    <th scope="col">hᵢ</th>
+                    <th scope="col">Cook Dᵢ</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"><span class="sr-only">Delete</span></th>
+                  </tr>
+                </thead>
+                <tbody id="points-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Multi-Format Code & Calculator Export Suite -->
+        <section class="panel" aria-labelledby="export-suite-title">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 id="export-suite-title" class="panel-title">Reproducible Code &amp; Calculator Export</h2>
+            </div>
+            <div class="segmented-control" role="group" aria-label="Export format">
+              <button type="button" class="seg-btn active" data-export-tab="r" aria-pressed="true">R Script</button>
+              <button type="button" class="seg-btn" data-export-tab="python" aria-pressed="false">Python</button>
+              <button type="button" class="seg-btn" data-export-tab="ti84" aria-pressed="false">TI-84 Lists</button>
+              <button type="button" class="seg-btn" data-export-tab="latex" aria-pressed="false">LaTeX Table</button>
+              <button type="button" class="seg-btn" data-export-tab="csv" aria-pressed="false">CSV</button>
+            </div>
+          </div>
+          <div class="panel-body compact">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span style="font-size:0.76rem; color:var(--color-text-muted);">Live generated snippet for active dataset:</span>
+              <div style="display:flex; gap:6px;">
+                <button type="button" id="copy-code-btn" class="btn btn-sm">Copy Snippet</button>
+                <button type="button" id="download-csv-btn" class="btn btn-primary btn-sm">Download .CSV</button>
+              </div>
+            </div>
+            <pre id="code-preview-box" class="code-preview-box" tabindex="0" aria-label="Generated export code snippet"></pre>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <!-- Application Footer -->
+    <footer class="app-footer" role="contentinfo">
+      <div>
+        <strong>QuartetLab</strong> · Built for statistics educators, students, lab researchers, and data analysts. 100% client-side execution; zero external telemetry or server dependencies.
+      </div>
+      <div>
+        <span>Keyboard: <code class="mono">Ctrl/Cmd+Z</code> Undo · <code class="mono">[ / ]</code> Cycle Point · <code class="mono">Arrow Keys</code> Nudge Point</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal 1: Import CSV / Delimited Data -->
+  <div id="import-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="import-modal-title" hidden>
+    <div class="modal-card" style="max-width: 560px;">
+      <div class="modal-header">
+        <h2 id="import-modal-title" class="panel-title">Import CSV, TSV, or Space-Delimited Coordinates</h2>
+        <button type="button" id="close-import-btn" class="btn btn-sm" aria-label="Close import dialog">Close</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--color-text-muted);">
+          Paste two columns (<code class="mono">X, Y</code>) or three columns (<code class="mono">Label, X, Y</code>) below. Optional header row is detected automatically. All parsing runs locally in your browser.
+        </p>
+        <label for="import-textarea" class="sr-only">Paste delimited data</label>
+        <textarea id="import-textarea" class="input-field mono" rows="9" placeholder="StudyHours, ExamScore&#10;2.5, 68.0&#10;3.0, 71.5&#10;4.5, 79.0&#10;6.0, 88.5&#10;7.5, 94.0"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="confirm-import-btn" class="btn btn-primary">Parse &amp; Load Dataset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Printable Classroom FRQ Worksheet & Rubric Studio -->
+  <div id="worksheet-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="worksheet-modal-title" hidden>
+    <div class="modal-card">
+      <div class="modal-header no-print">
+        <h2 id="worksheet-modal-title" class="panel-title">Printable Classroom FRQ Handout &amp; Scoring Rubric</h2>
+        <div style="display:flex; gap:8px;">
+          <button type="button" id="toggle-rubric-btn" class="btn btn-sm">Hide Answer Key / Rubric</button>
+          <button type="button" id="print-worksheet-btn" class="btn btn-primary btn-sm">Print / Save as PDF</button>
+          <button type="button" id="close-worksheet-btn" class="btn btn-sm">Close</button>
+        </div>
+      </div>
+      <div id="worksheet-content" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Local Snapshots & Privacy Inspector -->
+  <div id="privacy-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title" hidden>
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2 id="privacy-modal-title" class="panel-title">Local Snapshots &amp; Browser Privacy Inspector</h2>
+        <button type="button" id="close-privacy-btn" class="btn btn-sm">Close</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--color-text-muted);">
+          QuartetLab processes all calculations in your browser tab. No datasets, coordinates, or analytics leave your device. You can save named dataset snapshots to <code class="mono">localStorage</code> or wipe all stored data below.
+        </p>
+        <div style="display:flex; gap:8px;">
+          <label for="snapshot-name-input" class="sr-only">Snapshot Name</label>
+          <input type="text" id="snapshot-name-input" class="input-field" placeholder="Name current dataset snapshot (e.g., Unit 2 Quiz Set B)">
+          <button type="button" id="save-snapshot-btn" class="btn btn-primary">Save Snapshot</button>
+        </div>
+        <div>
+          <h3 style="font-size: 0.82rem; margin-bottom: 6px; color: var(--color-text-muted);">Saved Browser Snapshots</h3>
+          <div id="snapshots-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+        <div>
+          <h3 style="font-size: 0.82rem; margin-bottom: 6px; color: var(--color-text-muted);">Storage &amp; Telemetry Audit</h3>
+          <pre id="storage-report-box" class="code-preview-box" style="margin-top:0;"></pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="wipe-storage-btn" class="btn btn-secondary">Delete All Local Browser Data</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Dependencies & build artifacts
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
