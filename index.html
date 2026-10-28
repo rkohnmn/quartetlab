@@ -3,23 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuartetLab — Interactive Bivariate Dataset Synthesizer, Exact-Moment Solver &amp; Diagnostic Studio</title>
-  <meta name="description" content="Draw, sculpt, and project bivariate datasets onto exact sample means, standard deviations, and Pearson correlations (r). Inspect real-time OLS residuals, Cook's distance, Minitab/AP regression tables, TI-84 lists, R/Python scripts, and printable FRQ worksheets—100% locally in your browser.">
-  <meta name="keywords" content="Anscombe's Quartet, Datasaurus, regression diagnostics, synthetic dataset generator, AP Statistics FRQ generator, Cook's distance, leverage, residual plot, TI-84 list generator, local-first statistics tool">
-  <meta name="author" content="QuartetLab Contributors">
-  <meta name="theme-color" content="#0F6E56">
+  <title>QuartetLab — Interactive Bivariate Dataset Synthesizer, Exact-Moment Solver &amp; Diagnostic Studio | DataSense Studio</title>
+  <meta name="description" content="Draw, sculpt, and project bivariate datasets onto exact sample means, standard deviations, and Pearson correlations (r). Inspect real-time OLS residuals, Cook's distance, and regression tables in the DataSense Studio ecosystem.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="author" content="rkohnmn — DataSense Studio">
+  <meta name="keywords" content="Anscombe's Quartet, Datasaurus, regression diagnostics, synthetic dataset generator, DataSense Studio, DataSense Compass, AP Statistics FRQ generator, Cook's distance, leverage, residual plot">
+  <link rel="canonical" href="https://rkohnmn.github.io/quartetlab/">
 
   <!-- Open Graph / Social Discovery -->
+  <meta property="og:site_name" content="DataSense Studio">
   <meta property="og:type" content="website">
   <meta property="og:title" content="QuartetLab — Interactive Statistical Dataset Synthesizer &amp; Diagnostic Workbench">
-  <meta property="og:description" content="Sculpt bivariate datasets with exact sample moments (mean, SD, Pearson r), live Cook's distance &amp; residual plots, Minitab/R output tables, TI-84 lists, and printable classroom FRQ handouts.">
-  <meta property="og:image" content="./assets/og-preview.svg">
+  <meta property="og:description" content="Sculpt bivariate datasets with exact sample moments (mean, SD, Pearson r), live Cook's distance &amp; residual plots, Minitab/R output tables, and printable classroom FRQ handouts.">
+  <meta property="og:url" content="https://rkohnmn.github.io/quartetlab/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://rkohnmn.github.io/datasense-studio/assets/screenshots/quartetlab.png">
+
+  <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="QuartetLab — Exact-Moment Dataset Synthesizer &amp; Regression Studio">
   <meta name="twitter:description" content="Browser-native statistical dataset synthesizer with Gram-Schmidt exact moment projection, live residual diagnostics, and one-click R/Python/TI-84/FRQ exports.">
+  <meta name="twitter:image" content="https://rkohnmn.github.io/datasense-studio/assets/screenshots/quartetlab.png">
 
-  <!-- Relative Favicon & Stylesheets (GitHub Pages Subpath Safe) -->
-  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <!-- Shared DataSense SVG Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230D1014'/%3E%3Cpath d='M7 22 L13 14 L18 18 L25 9' stroke='%2310B981' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='9' r='2.5' fill='%23D9381E'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/components.css">
@@ -31,22 +39,38 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "QuartetLab",
-    "applicationCategory": "EducationalApplication",
-    "operatingSystem": "All",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "Local-first bivariate dataset synthesizer, Gram-Schmidt exact-moment solver, regression diagnostic workbench, and printable FRQ assessment studio."
+    "applicationCategory": "ScientificApplication",
+    "operatingSystem": "Web Browser",
+    "url": "https://rkohnmn.github.io/quartetlab/",
+    "description": "Local-first bivariate dataset synthesizer, Gram-Schmidt exact-moment solver, regression diagnostic workbench, and printable FRQ assessment studio.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "DataSense Studio",
+      "url": "https://rkohnmn.github.io/datasense-studio/"
+    }
   }
-  </script>
-</head>
+  </script></head>
 <body>
   <a href="#main-workbench" class="skip-link">Skip to interactive workbench</a>
   <div id="sr-live-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
   <div class="app-shell">
+    <!-- Top Ecosystem Header -->
+    <div class="ecosystem-banner" style="background:#0D1014; color:#F6F4EE; padding:6px 16px; font-size:12px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #232830;">
+      <div>
+        <strong style="color:#FFFFFF;">DataSense Studio Ecosystem:</strong>
+        <a href="https://rkohnmn.github.io/datasense-studio/" target="_blank" rel="noopener" style="color:#10B981; margin:0 8px; text-decoration:none; font-weight:600;">DataSense Hub ↗</a> |
+        <a href="https://rkohnmn.github.io/datasense-studio/compass/" target="_blank" rel="noopener" style="color:#38BDF8; margin:0 8px; text-decoration:none; font-weight:600;">DataSense Compass ↗</a> |
+        <a href="https://rkohnmn.github.io/datamend-lab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">01 · Prepare</a> |
+        <a href="https://rkohnmn.github.io/visualgrammar/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">02 · Visualize</a> |
+        <span style="color:#10B981; margin:0 8px; font-weight:600;">● 03 · QuartetLab</span> |
+        <a href="https://rkohnmn.github.io/resamplelab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">04 · Infer</a> |
+        <a href="https://rkohnmn.github.io/forecastlab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">05 · Forecast</a>
+      </div>
+      <div>
+        <span style="color:#A0A6AD; font-family:monospace;">03 · Investigate Laboratory</span>
+      </div>
+    </div>
     <!-- Top Instrument Ribbon -->
     <header class="top-header" role="banner">
       <div class="brand-cluster">

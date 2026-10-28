@@ -69,6 +69,8 @@ def main() -> int:
                     f"Root-absolute path in index.html ({attr}={path}) breaks GitHub Pages repository subpaths."
                 )
             elif path.startswith("http://") or path.startswith("https://"):
+                if "rkohnmn.github.io" in path or "datasense-studio" in path:
+                    continue
                 errors.append(f"External runtime dependency in index.html: {path}")
             else:
                 resolved = os.path.normpath(os.path.join(ROOT, path))

@@ -1,5 +1,8 @@
 # QuartetLab
 
+[![Ecosystem Hub: DataSense Studio](https://img.shields.io/badge/Ecosystem%20Hub-DataSense%20Studio-0D1014?style=flat-square)](https://rkohnmn.github.io/datasense-studio/)
+[![DataSense Compass](https://img.shields.io/badge/DataSense-Compass%20Engine-D9381E?style=flat-square)](https://rkohnmn.github.io/datasense-studio/compass/)
+
 [![CI Status](https://github.com/rkohnmn/quartetlab/actions/workflows/ci.yml/badge.svg)](https://github.com/rkohnmn/quartetlab/actions/workflows/ci.yml)
 [![Deploy to GitHub Pages](https://github.com/rkohnmn/quartetlab/actions/workflows/deploy.yml/badge.svg)](https://github.com/rkohnmn/quartetlab/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
