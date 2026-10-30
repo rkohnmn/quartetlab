@@ -1,3 +1,4 @@
+import { assertInputSize, assertTableSize, assertHeaders, missingNumber, readDelimitedRecords } from './import-safety.js';
 /**
  * QuartetLab Multi-Format Exporters & Zero-Backend URL State Serializer
  * Supports:
@@ -205,71 +206,26 @@ export function exportToLaTeXTable(meta, diag) {
  * @returns {{points: Array<{id: string, label: string, x: number, y: number}>, xLabel?: string, yLabel?: string, errors: string[]}}
  */
 export function parseDelimitedText(rawText) {
-  const errors = [];
-  if (!rawText || typeof rawText !== "string") {
-    return { points: [], errors: ["Input text is empty."] };
-  }
-  const lines = rawText
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0 && !l.startsWith("#"));
-
-  if (lines.length === 0) {
-    return { points: [], errors: ["No non-empty lines found."] };
-  }
-
-  const splitLine = (line) => {
-    if (line.includes("\t")) return line.split("\t").map((s) => s.trim());
-    if (line.includes(",")) return line.split(",").map((s) => s.trim().replace(/^"|"$/g, ""));
-    return line.split(/\s+/).map((s) => s.trim());
-  };
-
-  let xLabel;
-  let yLabel;
-  let startRow = 0;
-  const firstTokens = splitLine(lines[0]);
-  if (firstTokens.length >= 2) {
-    const firstNums = firstTokens.map((t) => Number(t));
-    if (Number.isNaN(firstNums[0]) && Number.isNaN(firstNums[1])) {
-      if (firstTokens.length === 2) {
-        [xLabel, yLabel] = firstTokens;
-      } else {
-        xLabel = firstTokens[1];
-        yLabel = firstTokens[2];
-      }
-      startRow = 1;
-    }
-  }
-
-  const points = [];
-  for (let i = startRow; i < lines.length; i++) {
-    const tokens = splitLine(lines[i]);
-    if (tokens.length < 2) {
-      errors.push(`Line ${i + 1}: Expected at least 2 columns.`);
-      continue;
-    }
-    let label = `Obs ${points.length + 1}`;
-    let xVal = Number(tokens[0]);
-    let yVal = Number(tokens[1]);
-
-    if ((Number.isNaN(xVal) || Number.isNaN(yVal)) && tokens.length >= 3) {
-      label = tokens[0];
-      xVal = Number(tokens[1]);
-      yVal = Number(tokens[2]);
-    }
-    if (!Number.isFinite(xVal) || !Number.isFinite(yVal)) {
-      errors.push(`Line ${i + 1}: Could not parse numeric coordinates (${tokens.join(", ")}).`);
-      continue;
-    }
-    points.push({
-      id: `imp_${points.length + 1}`,
-      label,
-      x: xVal,
-      y: yVal
+  try {
+    assertInputSize(rawText);
+    const text = String(rawText || '').trim();
+    const records = /[,;\t]/.test(text)
+      ? readDelimitedRecords(text).records
+      : text.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#')).map(line => line.trim().split(/\s+/));
+    const first = records[0] || [];
+    if (![2,3].includes(first.length)) throw new Error('Provide X, Y columns, optionally preceded by a Label column.');
+    const offset = first.length === 3 ? 1 : 0;
+    const hasHeader = first.slice(offset).every(value => !Number.isFinite(missingNumber(value)));
+    const rows = records.slice(hasHeader ? 1 : 0);
+    assertTableSize(rows.length, first.length);
+    const points = rows.map((row, i) => {
+      if (row.length !== first.length) throw new Error(`Row ${i + 1}: column count does not match the first row.`);
+      const x = missingNumber(row[offset]), y = missingNumber(row[offset+1]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error(`Row ${i + 1}: X and Y must both be finite numbers. Missing coordinates cannot be plotted.`);
+      return {id:`imp_${i+1}`, label:offset ? row[0] : `Obs ${i+1}`, x, y};
     });
-  }
-
-  return { points, xLabel, yLabel, errors };
+    return {points, errors:[], xLabel:hasHeader ? first[offset] : undefined, yLabel:hasHeader ? first[offset+1] : undefined};
+  } catch (error) { return {points:[], errors:[error.message]}; }
 }
 
 /**

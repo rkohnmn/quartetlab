@@ -1,3 +1,4 @@
+import { trapDialogFocus } from "./dialog-focus.js";
 /**
  * QuartetLab Main Application Controller
  * Coordinates interactive canvas manipulation, exact-moment projection,
@@ -424,17 +425,26 @@ class QuartetLabApp {
     });
 
     // Modals: Import CSV
+    let importReturnFocus;
+    const closeImport = () => {
+      this.els.importModal.hidden = true;
+      importReturnFocus?.focus();
+    };
+    this.els.importModal.addEventListener("keydown", e => trapDialogFocus(e, this.els.importModal, closeImport));
+    this.els.importTextarea.addEventListener("input", () => {
+      document.getElementById("import-validation-error").textContent = "";
+    });
     this.els.openImportBtn?.addEventListener("click", () => {
+      importReturnFocus = document.activeElement;
+      document.getElementById("import-validation-error").textContent = "";
       this.els.importModal.hidden = false;
       this.els.importTextarea?.focus();
     });
-    this.els.closeImportBtn?.addEventListener("click", () => {
-      this.els.importModal.hidden = true;
-    });
+    this.els.closeImportBtn?.addEventListener("click", closeImport);
     this.els.confirmImportBtn?.addEventListener("click", () => {
       const parsed = parseDelimitedText(this.els.importTextarea?.value || "");
       if (parsed.points.length < 3) {
-        this.showToast(parsed.errors[0] || "Please provide at least 3 numeric (X, Y) rows.");
+        document.getElementById("import-validation-error").textContent = parsed.errors[0] || "Please provide at least 3 numeric (X, Y) rows.";
         return;
       }
       this.pushHistory();
@@ -443,7 +453,7 @@ class QuartetLabApp {
       if (parsed.xLabel) this.state.xLabel = parsed.xLabel;
       if (parsed.yLabel) this.state.yLabel = parsed.yLabel;
       this.state.points = parsed.points;
-      this.els.importModal.hidden = true;
+      closeImport();
       this.recomputeAndRender(true);
       this.showToast(`Imported ${parsed.points.length} observations.`);
     });
@@ -494,6 +504,7 @@ class QuartetLabApp {
     // Window resize
     window.addEventListener("resize", () => this.renderAllCanvases());
     window.addEventListener("keydown", (e) => {
+      if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
         if (e.shiftKey) {
           e.preventDefault();

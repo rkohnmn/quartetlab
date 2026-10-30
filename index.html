@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/product.css" media="screen">
   <link rel="stylesheet" href="./css/print.css">
 
   <!-- Structured Data -->
@@ -426,7 +427,9 @@
           Paste two columns (<code class="mono">X, Y</code>) or three columns (<code class="mono">Label, X, Y</code>) below. Optional header row is detected automatically. All parsing runs locally in your browser.
         </p>
         <label for="import-textarea" class="sr-only">Paste delimited data</label>
-        <textarea id="import-textarea" class="input-field mono" rows="9" placeholder="StudyHours, ExamScore&#10;2.5, 68.0&#10;3.0, 71.5&#10;4.5, 79.0&#10;6.0, 88.5&#10;7.5, 94.0"></textarea>
+        <p class="import-guidance">Local import · Up to 2 MB, 5,000 rows, 40 columns, and 100,000 cells. For larger datasets, choose a subset.</p>
+        <p id="import-validation-error" class="import-error" role="alert"></p>
+        <textarea aria-describedby="import-validation-error" id="import-textarea" class="input-field mono" rows="9" placeholder="StudyHours, ExamScore&#10;2.5, 68.0&#10;3.0, 71.5&#10;4.5, 79.0&#10;6.0, 88.5&#10;7.5, 94.0"></textarea>
       </div>
       <div class="modal-footer">
         <button type="button" id="confirm-import-btn" class="btn btn-primary">Parse &amp; Load Dataset</button>

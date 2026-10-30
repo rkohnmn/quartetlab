@@ -22,3 +22,7 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Generated browser evidence
+artifacts/browser/
+__pycache__/
