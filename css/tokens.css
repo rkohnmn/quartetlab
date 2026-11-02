@@ -15,20 +15,20 @@
   --color-border-strong: #9E998B;
 
   /* Instrument Traces & Diagnostics */
-  --color-primary: #0F6E56;
+  --color-primary: #0C604B;
   --color-primary-hover: #0B5442;
   --color-primary-soft: rgba(15, 110, 86, 0.12);
-  --color-secondary: #D9381E;
+  --color-secondary: #B52D18;
   --color-secondary-hover: #B52B14;
   --color-secondary-soft: rgba(217, 56, 30, 0.12);
   --color-accent-highlight: #1D4ED8;
   --color-accent-soft: rgba(29, 78, 216, 0.12);
 
   /* Semantic Status Colors (WCAG AA Checked) */
-  --color-error: #C92A2A;
-  --color-warning: #B45309;
+  --color-error: #A61C1C;
+  --color-warning: #92400E;
   --color-warning-soft: rgba(180, 83, 9, 0.13);
-  --color-success: #0F6E56;
+  --color-success: #0C604B;
 
   /* Canvas Plotting Tokens */
   --canvas-bg: #FFFFFF;
@@ -37,11 +37,11 @@
   --canvas-axis: #525866;
   --canvas-point: #141619;
   --canvas-point-hover: #1D4ED8;
-  --canvas-ols: #0F6E56;
+  --canvas-ols: #0C604B;
   --canvas-ci: rgba(15, 110, 86, 0.14);
   --canvas-alt-model: #7C3AED;
-  --canvas-residual: #D9381E;
-  --canvas-fulcrum: #B45309;
+  --canvas-residual: #B52D18;
+  --canvas-fulcrum: #92400E;
 
   /* Typography */
   --font-headline: 'Instrument Serif', 'Georgia', 'Times New Roman', serif;

@@ -435,7 +435,7 @@ class QuartetLabApp {
       document.getElementById("import-validation-error").textContent = "";
     });
     this.els.openImportBtn?.addEventListener("click", () => {
-      importReturnFocus = document.activeElement;
+      importReturnFocus = this.els.openImportBtn;
       document.getElementById("import-validation-error").textContent = "";
       this.els.importModal.hidden = false;
       this.els.importTextarea?.focus();

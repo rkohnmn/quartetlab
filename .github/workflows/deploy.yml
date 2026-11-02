@@ -15,7 +15,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  browser-quality:
+    uses: ./.github/workflows/product-quality.yml
+    permissions:
+      contents: read
   test-and-verify:
+    needs: browser-quality
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -38,7 +43,7 @@ jobs:
         run: npm run verify
 
   deploy:
-    needs: test-and-verify
+    needs: [browser-quality, test-and-verify]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -51,10 +56,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Stage static site bundle
-        run: |
-          mkdir -p _site
-          cp index.html .nojekyll DESIGN.md _site/
-          cp -r css js assets _site/
+        run: python3 scripts/prepare-pages.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
