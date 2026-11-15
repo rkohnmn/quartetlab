@@ -102,7 +102,8 @@ function betaContinuedFraction(x, a, b) {
  * @returns {number}
  */
 export function studentTTwoSidedPValue(tStat, df) {
-  if (!Number.isFinite(tStat) || df <= 0) return NaN;
+  if (Number.isNaN(tStat) || df <= 0) return NaN;
+  if (!Number.isFinite(tStat)) return 0.0;
   if (tStat === 0) return 1.0;
   const x = df / (df + tStat * tStat);
   return Math.min(1, Math.max(0, regularizedBeta(x, 0.5 * df, 0.5)));
@@ -310,6 +311,9 @@ export function computeDatasetDiagnostics(points) {
       reason: "At least 3 observations are required for OLS regression inference."
     };
   }
+  if (!points.every(pt => pt && typeof pt.x === "number" && typeof pt.y === "number" && Number.isFinite(pt.x) && Number.isFinite(pt.y))) {
+    return { valid: false, n, reason: "Every X/Y coordinate must be a finite number." };
+  }
 
   let sumX = 0;
   let sumY = 0;
@@ -331,14 +335,20 @@ export function computeDatasetDiagnostics(points) {
     sxy += dx * dy;
   }
 
+  // A constant predictor or response has no identified OLS slope inference.
+  if (ssx <= 0 || ssy <= 0) {
+    return { valid: false, n, reason: ssx <= 0
+      ? "X has zero variance: regression slope, correlation, and leverage are undefined."
+      : "Y has zero variance: correlation and regression inference are undefined." };
+  }
   const sdX = Math.sqrt(ssx / (n - 1));
   const sdY = Math.sqrt(ssy / (n - 1));
   const denomR = Math.sqrt(ssx * ssy);
-  const r = denomR > EPSILON ? Math.max(-1, Math.min(1, sxy / denomR)) : 0;
+  const r = denomR > 0 ? Math.max(-1, Math.min(1, sxy / denomR)) : 0;
   const r2 = r * r;
   const r2Adj = n > 2 ? 1 - ((1 - r2) * (n - 1)) / (n - 2) : r2;
 
-  const slope = ssx > EPSILON ? sxy / ssx : 0;
+  const slope = sxy / ssx;
   const intercept = meanY - slope * meanX;
 
   let sse = 0;
@@ -357,13 +367,18 @@ export function computeDatasetDiagnostics(points) {
 
   const df = n - 2;
   const sResid = df > 0 ? Math.sqrt(Math.max(0, sse) / df) : 0;
-  const seSlope = ssx > EPSILON ? sResid / Math.sqrt(ssx) : Infinity;
-  const seIntercept = ssx > EPSILON
+  const seSlope = sResid / Math.sqrt(ssx);
+  const seIntercept = ssx > 0
     ? sResid * Math.sqrt(1 / n + (meanX * meanX) / ssx)
     : Infinity;
 
-  const tSlope = seSlope > EPSILON && Number.isFinite(seSlope) ? slope / seSlope : 0;
-  const tIntercept = seIntercept > EPSILON && Number.isFinite(seIntercept) ? intercept / seIntercept : 0;
+  // Do not turn a zero standard error into t=0 / p=1.
+  // Exact nonzero effects have a limiting infinite t-statistic; a zero effect
+  // with zero SE is undefined rather than non-significant.
+  const tSlope = seSlope > 0 && Number.isFinite(seSlope) ? slope / seSlope
+    : seSlope === 0 && slope !== 0 ? Math.sign(slope) * Infinity : NaN;
+  const tIntercept = seIntercept > 0 && Number.isFinite(seIntercept) ? intercept / seIntercept
+    : seIntercept === 0 && intercept !== 0 ? Math.sign(intercept) * Infinity : NaN;
   const pSlope = studentTTwoSidedPValue(tSlope, df);
   const pIntercept = studentTTwoSidedPValue(tIntercept, df);
   const fStat = tSlope * tSlope;
@@ -379,7 +394,7 @@ export function computeDatasetDiagnostics(points) {
     const y = Number(pt.y);
     const yhat = fittedValues[i];
     const resid = rawResiduals[i];
-    const h = ssx > EPSILON ? 1 / n + ((x - meanX) * (x - meanX)) / ssx : 1 / n;
+    const h = 1 / n + ((x - meanX) * (x - meanX)) / ssx;
     const oneMinusH = Math.max(EPSILON, 1 - h);
     const internalStdResid = sResid > EPSILON ? resid / (sResid * Math.sqrt(oneMinusH)) : 0;
     const r2Int = internalStdResid * internalStdResid;

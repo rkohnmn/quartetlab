@@ -20,8 +20,22 @@ function sanitizeIdentifier(raw, fallback = "var") {
   return /^[0-9]/.test(cleaned) ? `v_${cleaned}` : cleaned;
 }
 
+// Script comments must not contain hard line breaks from shared metadata.
+function safeScriptComment(value) {
+  return String(value ?? "").replace(/[\r\n\u2028\u2029]/g, " ");
+}
+
+// JSON string literals have the required quote/backslash/newline escaping for R.
+function safeRLiteral(value) {
+  return JSON.stringify(String(value ?? "")).replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+}
+
+// Keep numerical columns numeric; quote formula-like imported labels/headers.
 function escapeCsvCell(val) {
-  const str = String(val ?? "");
+  let str = String(val ?? "");
+  const trimmed = str.trimStart();
+  const numeric = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(trimmed);
+  if (!numeric && /^[=+\-@]/.test(trimmed)) str = "'" + str;
   if (/[",\n\r]/.test(str)) {
     return `"${str.replace(/"/g, '""')}"`;
   }
@@ -86,7 +100,7 @@ export function exportToRScript(meta, diag, decimals = 4) {
   const yVals = diag.points.map((p) => p.y.toFixed(decimals)).join(", ");
 
   return [
-    `# QuartetLab Reproducible R Script — ${meta.title || "Custom Dataset"}`,
+    `# QuartetLab Reproducible R Script — ${safeScriptComment(meta.title || "Custom Dataset")}`,
     `# Summary: n = ${diag.n}, mean(X) = ${diag.meanX.toFixed(4)}, sd(X) = ${diag.sdX.toFixed(4)}, r = ${diag.r.toFixed(4)}`,
     ``,
     `${xVar} <- c(${xVals})`,
@@ -111,7 +125,7 @@ export function exportToRScript(meta, diag, decimals = 4) {
     `# Plot Scatter + OLS Line and Residual Plot`,
     `par(mfrow = c(1, 2))`,
     `plot(df$${xVar}, df$${yVar}, pch = 19, col = "#141619",`,
-    `     xlab = "${meta.xLabel} (${meta.xUnit || ""})", ylab = "${meta.yLabel} (${meta.yUnit || ""})",`,
+    `     xlab = ${safeRLiteral(`${meta.xLabel || "X"} (${meta.xUnit || ""})`)}, ylab = ${safeRLiteral(`${meta.yLabel || "Y"} (${meta.yUnit || ""})`)},`,
     `     main = "Scatter Plot & OLS Fit")`,
     `abline(fit, col = "#0F6E56", lwd = 2)`,
     `plot(fitted(fit), resid(fit), pch = 19, col = "#D9381E",`,
@@ -134,7 +148,7 @@ export function exportToPythonScript(meta, diag, decimals = 4) {
   const yVals = diag.points.map((p) => Number(p.y.toFixed(decimals))).join(", ");
 
   return [
-    `# QuartetLab Reproducible Python Script — ${meta.title || "Custom Dataset"}`,
+    `# QuartetLab Reproducible Python Script — ${safeScriptComment(meta.title || "Custom Dataset")}`,
     `import numpy as np`,
     `import pandas as pd`,
     `from scipy import stats`,
@@ -165,7 +179,7 @@ export function exportToTI84Command(meta, diag, decimals = 3) {
   const xList = diag.points.map((p) => Number(p.x.toFixed(decimals))).join(",");
   const yList = diag.points.map((p) => Number(p.y.toFixed(decimals))).join(",");
   return [
-    `REM TI-84 Plus / CE List Entry (${meta.title || "QuartetLab Dataset"})`,
+    `REM TI-84 Plus / CE List Entry (${safeScriptComment(meta.title || "QuartetLab Dataset")})`,
     `{${xList}}->L1`,
     `{${yList}}->L2`,
     `LinReg(a+bx) L1,L2,Y1`,
@@ -233,7 +247,14 @@ export function parseDelimitedText(rawText) {
  * @param {object} state
  * @returns {string}
  */
+const MAX_SHARE_HASH_CHARS = 8192;
+
 export function encodeStateToHash(state) {
+  if (!Array.isArray(state.points) || state.points.length < 3 ||
+      state.points.some(p => !p || typeof p.x !== "number" || typeof p.y !== "number" ||
+        !Number.isFinite(p.x) || !Number.isFinite(p.y))) {
+    throw new Error("Share links require at least three observations with finite X/Y coordinates.");
+  }
   const payload = {
     v: 1,
     t: state.title || "Custom Dataset",
@@ -242,11 +263,7 @@ export function encodeStateToHash(state) {
     yl: state.yLabel || "Y",
     yu: state.yUnit || "",
     cp: state.contextPrompt || "",
-    pts: (state.points || []).map((p) => [
-      Number(Number(p.x).toFixed(4)),
-      Number(Number(p.y).toFixed(4)),
-      p.label || ""
-    ])
+    pts: state.points.map(p => [p.x, p.y, p.label || ""])
   };
   const json = JSON.stringify(payload);
   const bytes = new TextEncoder().encode(json);
@@ -258,6 +275,9 @@ export function encodeStateToHash(state) {
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
+  if (b64.length + 6 > MAX_SHARE_HASH_CHARS) {
+    throw new Error("Dataset is too large for a reliable share URL. Use CSV export instead.");
+  }
   return `state=${b64}`;
 }
 
@@ -269,6 +289,7 @@ export function encodeStateToHash(state) {
 export function decodeStateFromHash(hashString) {
   try {
     const clean = String(hashString || "").replace(/^#/, "");
+    if (clean.length > MAX_SHARE_HASH_CHARS) return null;
     const match = clean.match(/(?:^|&)state=([A-Za-z0-9_-]+)/);
     if (!match) return null;
     let b64 = match[1].replace(/-/g, "+").replace(/_/g, "/");
@@ -279,7 +300,10 @@ export function decodeStateFromHash(hashString) {
       bytes[i] = binary.charCodeAt(i);
     }
     const parsed = JSON.parse(new TextDecoder().decode(bytes));
-    if (!parsed || !Array.isArray(parsed.pts) || parsed.pts.length < 3) {
+    if (!parsed || !Array.isArray(parsed.pts) || parsed.pts.length < 3 ||
+        parsed.pts.some(tuple => !Array.isArray(tuple) || tuple.length < 2 ||
+          typeof tuple[0] !== "number" || typeof tuple[1] !== "number" ||
+          !Number.isFinite(tuple[0]) || !Number.isFinite(tuple[1]))) {
       return null;
     }
     return {

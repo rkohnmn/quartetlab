@@ -414,14 +414,18 @@ class QuartetLabApp {
 
     // Shareable URL State
     this.els.shareUrlBtn?.addEventListener("click", () => {
-      const hash = encodeStateToHash(this.state);
-      if (typeof window !== "undefined" && window.history?.replaceState) {
-        window.history.replaceState(null, "", `#${hash}`);
+      try {
+        const hash = encodeStateToHash(this.state);
+        if (typeof window !== "undefined" && window.history?.replaceState) {
+          window.history.replaceState(null, "", `#${hash}`);
+        }
+        const fullUrl = typeof window !== "undefined"
+          ? `${window.location.origin}${window.location.pathname}#${hash}`
+          : `#${hash}`;
+        this.copyToClipboard(fullUrl, "Shareable dataset URL copied to clipboard.");
+      } catch (error) {
+        this.showToast(error.message || "Unable to create a valid share link. Export CSV instead.");
       }
-      const fullUrl = typeof window !== "undefined"
-        ? `${window.location.origin}${window.location.pathname}#${hash}`
-        : `#${hash}`;
-      this.copyToClipboard(fullUrl, "Shareable dataset URL copied to clipboard.");
     });
 
     // Modals: Import CSV
@@ -696,12 +700,19 @@ class QuartetLabApp {
   }
 
   readTargetInputs() {
+    const finiteField = (element, current, fallback) => {
+      const base = Number.isFinite(current) ? current : fallback;
+      const raw = element?.value;
+      if (raw === undefined || String(raw).trim() === "") return base;
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : base;
+    };
     return {
-      meanX: parseFloat(this.els.targetMeanX?.value) || this.diagnostics?.meanX || 9.0,
-      sdX: Math.max(0.001, parseFloat(this.els.targetSdX?.value) || this.diagnostics?.sdX || 3.3166),
-      meanY: parseFloat(this.els.targetMeanY?.value) || this.diagnostics?.meanY || 7.50,
-      sdY: Math.max(0.001, parseFloat(this.els.targetSdY?.value) || this.diagnostics?.sdY || 2.0316),
-      r: Math.max(-0.999, Math.min(0.999, parseFloat(this.els.targetR?.value) ?? this.diagnostics?.r ?? 0.8164))
+      meanX: finiteField(this.els.targetMeanX, this.diagnostics?.meanX, 9.0),
+      sdX: Math.max(0.001, finiteField(this.els.targetSdX, this.diagnostics?.sdX, 3.3166)),
+      meanY: finiteField(this.els.targetMeanY, this.diagnostics?.meanY, 7.50),
+      sdY: Math.max(0.001, finiteField(this.els.targetSdY, this.diagnostics?.sdY, 2.0316)),
+      r: Math.max(-0.999, Math.min(0.999, finiteField(this.els.targetR, this.diagnostics?.r, 0.8164)))
     };
   }
 
