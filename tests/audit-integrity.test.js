@@ -72,5 +72,5 @@ test('short finite share links preserve full coordinate precision', () => {
   const hash=encodeStateToHash(source);
   const decoded=decodeStateFromHash(hash);
   assert.ok(decoded);
-  assert.deepEqual(decoded.points.map(p=>[p.x,p.y]),linear.map(p=>[p.x,p.y]));
+  assert.deepEqual(decoded.points.map(p=>[p.x,p.y]),source.points.map(p=>[p.x,p.y]));
 });
